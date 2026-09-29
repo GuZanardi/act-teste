@@ -1,5 +1,5 @@
-import React from 'react';
-import { Wallet, CheckCircle2 } from 'lucide-react';
+import React from "react";
+import { Wallet } from "lucide-react";
 
 export const Header: React.FC = () => {
   return (
@@ -14,15 +14,10 @@ export const Header: React.FC = () => {
               <span>ACT Digital</span>
               <span className="text-sky-400">Financial</span>
             </div>
-            <p className="text-xs text-slate-400 font-medium">Controle de Conta Empresarial</p>
+            <p className="text-xs text-slate-400 font-medium">
+              Controle de Conta Empresarial
+            </p>
           </div>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            API Conectada (.NET 9)
-          </span>
         </div>
       </div>
     </header>

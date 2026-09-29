@@ -11,8 +11,17 @@ public static class DbInitializer
     {
         try
         {
-            logger.LogInformation("Verificando e aplicando migrações/criação do banco de dados...");
-            await context.Database.EnsureCreatedAsync();
+            logger.LogInformation("Executando migrações do banco de dados (EF Core Migrations)...");
+            
+            // Aplica as migrações pendentes automaticamente
+            if (context.Database.IsRelational())
+            {
+                await context.Database.MigrateAsync();
+            }
+            else
+            {
+                await context.Database.EnsureCreatedAsync();
+            }
 
             var defaultAccount = await context.Accounts.FirstOrDefaultAsync(a => a.Id == DefaultAccountId);
             if (defaultAccount == null)
@@ -33,7 +42,7 @@ public static class DbInitializer
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Ocorreu um erro ao inicializar o banco de dados.");
+            logger.LogError(ex, "Ocorreu um erro ao aplicar as migrações e inicializar o banco de dados.");
             throw;
         }
     }
