@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # 1. Banco de Dados MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: act_mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: financial_db
+      MYSQL_USER: act_user
+      MYSQL_PASSWORD: act_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "act_user", "-pact_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - act_network
+
+  # 2. API Backend .NET 9
+  api:
+    build:
+      context: ./api
+      dockerfile: FinancialAccount.API/Dockerfile
+    container_name: act_financial_api
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Server=mysql;Port=3306;Database=financial_db;User=act_user;Password=act_password;
+    ports:
+      - "5000:5000"
+    networks:
+      - act_network
+
+  # 3. Frontend SPA em React + TypeScript + Tailwind CSS
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: act_financial_app
+    restart: always
+    depends_on:
+      - api
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
+    ports:
+      - "3000:80"
+    networks:
+      - act_network
+
+networks:
+  act_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
